@@ -10,9 +10,10 @@ class GeminiService:
     def __init__(self):
         self.api_key = os.getenv("GEMINI_API_KEY")
         if not self.api_key:
+            print("❌ GEMINI_API_KEY not found in .env")
             raise ValueError("GEMINI_API_KEY not found in environment.")
         genai.configure(api_key=self.api_key)
-        self.model_name = "gemini-1.5-pro"
+        self.model_name = "gemini-3-flash-preview"
         self.model = genai.GenerativeModel(self.model_name)
 
     async def analyze_weekly(self, entries: list):
@@ -23,7 +24,7 @@ class GeminiService:
         Note: Each entry includes description, learnings, blockers, hours, and links.
         
         Provide a consolidated professional evaluation for this WEEK in strictly structured JSON format:
-        - weekly_score: (1-100 total score considering technical complexity and consistency)
+        - weekly_score: (1-100 total score)
         - consistency_score: (1-100 score on how regular and uniform the entries and effort (hours) were)
         - growth_trend: (Brief 3-5 word sentiment like 'Steady improvement' or 'Minor dip in performance')
         - top_skills: [List of the 3 most prominent skills developed this week]
@@ -34,17 +35,26 @@ class GeminiService:
         Ensure strictly valid JSON. Do not include extra text.
         """
         try:
-            response = self.model.generate_content(prompt)
-            result = validate_json(response.text)
+            # Using async version to prevent blocking
+            response = await self.model.generate_content_async(prompt)
             
-            # Simple retry/correction if parsing failed
+            # Check for safety blocks or empty candidates
+            if not response.candidates or not response.candidates[0].content.parts:
+                print(f"⚠️ Gemini blocked the content or returned empty response. Safety factor suspected.")
+                return {"error": "Content blocked by AI safety filters or invalid input."}
+                
+            text = response.text
+            result = validate_json(text)
+            
             if not result:
-                response = self.model.generate_content(prompt + " ERROR: Return strictly valid JSON only.")
-                result = validate_json(response.text)
+                # Try one more time with stricter retry
+                retry_response = await self.model.generate_content_async(prompt + "\nERROR: Previous attempt failed to parse as valid JSON. Reply ONLY with the JSON block.")
+                result = validate_json(retry_response.text)
 
-            return result or {"error": "Failed to parse JSON", "raw": response.text[:200]}
+            return result or {"error": "AI returned invalid JSON formatting", "raw": text[:200]}
         except Exception as e:
-            return {"error": str(e)}
+            print(f"❌ Gemini Service Error: {str(e)}")
+            return {"error": f"Gemini API Error: {str(e)}"}
 
     async def analyze_monthly(self, entries: list):
         prompt = f"""
@@ -64,14 +74,19 @@ class GeminiService:
         Ensure strictly valid JSON. Do not include extra text.
         """
         try:
-            response = self.model.generate_content(prompt)
-            result = validate_json(response.text)
+            response = await self.model.generate_content_async(prompt)
             
-            # Simple retry/correction if parsing failed
+            if not response.candidates or not response.candidates[0].content.parts:
+                return {"error": "Monthly report blocked by AI safety filters."}
+                
+            text = response.text
+            result = validate_json(text)
+            
             if not result:
-                response = self.model.generate_content(prompt + " ERROR: Return strictly valid JSON only.")
-                result = validate_json(response.text)
+                retry_response = await self.model.generate_content_async(prompt + "\nReply ONLY with the JSON block.")
+                result = validate_json(retry_response.text)
 
-            return result or {"error": "Failed to parse JSON", "raw": response.text[:200]}
+            return result or {"error": "AI returned invalid JSON formatting", "raw": text[:200]}
         except Exception as e:
-            return {"error": str(e)}
+            print(f"❌ Gemini Monthly Error: {str(e)}")
+            return {"error": f"Gemini API Error: {str(e)}"}
