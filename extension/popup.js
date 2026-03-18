@@ -5,7 +5,7 @@
 // ============================================================
 
 const API_BASE = "https://vtuapi.internyet.in/api/v1/student/internship-diaries";
-const BACKEND_BASE = "http://localhost:8000"; // AI Evaluation Backend
+const BACKEND_BASE = "https://diary-evaluator-backend.up.railway.app"; // AI Evaluation Backend       http://localhost:8000
 const CACHE_KEY = "vtu_diary_cache";
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
