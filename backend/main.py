@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
 # Now we can safely import routes
-from .routes import analyze_routes
-from .database.db import init_db
+from routes import analyze_routes
+from database.db import init_db
 
 # Initialize Database
 init_db()
@@ -36,5 +36,5 @@ app.include_router(analyze_routes.router)
 
 if __name__ == "__main__":
     import uvicorn
-    # Defaulting to 8000 for local development
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

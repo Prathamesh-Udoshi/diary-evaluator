@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from ..services.groq_service import GroqService
-from ..services.gemini_service import GeminiService
-from ..database.db import get_cached_result, store_result
-from ..utils.common import generate_hash
+from services.groq_service import GroqService
+from services.gemini_service import GeminiService
+from database.db import get_cached_result, store_result
+from utils.common import generate_hash
 
 router = APIRouter()
 groq_service = GroqService()

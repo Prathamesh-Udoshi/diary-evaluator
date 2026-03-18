@@ -2,7 +2,7 @@ import os
 import google.generativeai as genai
 from dotenv import load_dotenv
 import json
-from ..utils.common import validate_json
+from utils.common import validate_json
 
 load_dotenv()
 
