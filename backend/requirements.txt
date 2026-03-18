@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+httpx
+pydantic
+google-generativeai
+groq
+
+
+# .\diary_env\Scripts\Activate.bat
