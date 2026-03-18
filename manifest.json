@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "VTU Diary Evaluator",
+  "version": "1.0.0",
+  "description": "Fetches and organizes VTU internship diary entries by Day, Week, and Month views.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "VTU Diary Evaluator"
+  },
+  "permissions": [
+    "cookies",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://vtu.internyet.in/*",
+    "https://vtuapi.internyet.in/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["skills.json"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
