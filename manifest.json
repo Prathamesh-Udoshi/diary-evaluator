@@ -19,11 +19,5 @@
   "host_permissions": [
     "https://vtu.internyet.in/*",
     "https://vtuapi.internyet.in/*"
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["skills.json"],
-      "matches": ["<all_urls>"]
-    }
   ]
 }
